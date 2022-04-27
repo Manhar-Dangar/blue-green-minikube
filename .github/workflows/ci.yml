@@ -1,0 +1,29 @@
+name: CI
+on:
+  - push
+jobs:
+  job1:
+    runs-on: self-hosted
+    name: build example and deploy to minikube
+    steps:
+    - name: delete deploy
+      run: |
+        kubectl delete deploy example
+      # kubectl delete svc example
+        # kubectl delete ingress example-ingress
+    - uses: actions/checkout@v2
+    - name: Try the cluster !
+      run: kubectl get pods -A
+    - name: Build image
+      run: |
+        export SHELL=/bin/bash
+        pwd
+        ls
+        eval $(minikube -p minikube docker-env)
+        docker build -t man ./app/
+        echo -n "verifying images:"
+        docker images        
+    - name: Deploy to minikube
+      run:
+        kubectl apply -f menifest.yml
+    
